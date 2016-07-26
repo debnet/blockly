@@ -176,10 +176,13 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
             newXY, this.width_, this.height_);
     } else {
         this.bubble_.dispose();
+        this.bubble_ = null;
     }
 };
 
 
 Blockly.FieldMeta.prototype.dispose = function () {
-    this.bubble_.dispose();
+    if (this.isVisible()) {
+        this.bubble_.dispose();
+    }
 };
