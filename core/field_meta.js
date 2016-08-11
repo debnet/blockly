@@ -10,11 +10,11 @@ goog.require('goog.dom');
 goog.require('goog.style');
 
 
-Blockly.FieldMeta = function (obj, opt_validator) {
+Blockly.FieldMeta = function (metas, opt_validator) {
     //Blockly.FieldMeta.superClass_.constructor.call(this, '', opt_validator);
     this.size_ = new goog.math.Size(0, 0);
-    this.setValue('');
-    this.setMetas_ = obj;
+    this.setValue(metas);
+    this.options = opt_validator;
 };
 goog.inherits(Blockly.FieldMeta, Blockly.Field);
 
@@ -23,18 +23,6 @@ goog.inherits(Blockly.FieldMeta, Blockly.Field);
  * @private
  */
 Blockly.FieldMeta.prototype.CURSOR = "pointer";
-
-/**
- * Width of bubble.
- * @private
- */
-Blockly.FieldMeta.prototype.width_ = 160;
-
-/**
- * Height of bubble.
- * @private
- */
-Blockly.FieldMeta.prototype.height_ = 80;
 
 /**
  * Icon size.
@@ -72,10 +60,42 @@ Blockly.FieldMeta.prototype.drawIcon_ = function () {
         this.fieldGroup_);
 };
 
+Blockly.FieldMeta.prototype.showLabel_ = function () {
+    if (this.options.label) {
+        if (!this.textElement_) {
+            this.textElement_ = Blockly.createSvgElement('text',
+                {
+                    'x': '20', 'y': this.ICON_SIZE_ - 3.5,
+                    'class': 'blocklyText'
+                },
+                this.fieldGroup_);
+        }
+        this.setText(this.metas_[this.options.label]);
+        this.updateTextNode_();
+    }
+};
+
+Blockly.FieldMeta.prototype.getSize = function () {
+    Blockly.FieldMeta.superClass_.getSize.call(this);
+    var widthText = 0;
+    if (this.textElement_) {
+        try {
+            widthText = this.textElement_.getComputedTextLength();
+        } catch (e) {
+            // MSIE 11 is known to throw "Unexpected call to method or property
+            // access." if Blockly is hidden.
+            widthText = this.textElement_.textContent.length * 8;
+        }
+    }
+    this.size_.width = widthText + this.ICON_SIZE_;
+    return this.size_;
+};
+
 /**
  * Install this field on a block.
  */
 Blockly.FieldMeta.prototype.init = function () {
+    //Blockly.FieldMeta.superClass_.init.call(this);
     if (this.fieldGroup_) {
         // Checkbox has already been initialized once.
         return;
@@ -83,7 +103,12 @@ Blockly.FieldMeta.prototype.init = function () {
     this.fieldGroup_ = Blockly.createSvgElement('g', {
         'class': 'blocklyEditableField',
     }, null);
+    if (!this.visible_) {
+        this.fieldGroup_.style.display = 'none';
+    }
+
     this.drawIcon_();
+    this.showLabel_();
     this.updateEditable();
     this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
     this.mouseUpWrapper_ =
@@ -116,46 +141,44 @@ Blockly.FieldMeta.prototype.updateEditable = function () {
  * @private
  */
 Blockly.FieldMeta.prototype.validate_ = function () {
-    console.log('validate_')
+    console.log('validate_');
 };
 
 Blockly.FieldMeta.prototype.isVisible = function () {
-    return !!this.bubble_;
+    return !!this.modalDiv;
+};
+
+Blockly.FieldMeta.prototype.setValue = function (metas) {
+    if (typeof metas === 'string')
+        this.metas_ = JSON.parse(metas);
+    else this.metas_ = metas;
+};
+
+Blockly.FieldMeta.prototype.getValue = function () {
+    return JSON.stringify(this.metas_);
 };
 
 /**
- * Create the editor for the fiedlMeta's bubble.
- * @return {!Element} The top-level node of the editor.
+ * Create the editor for the fiedlMeta's modal.
  * @private
  */
 Blockly.FieldMeta.prototype.createEditor_ = function () {
     /* Create the editor.  Here's the markup that will be generated:
       <foreignObject x="8" y="8" width="164" height="164">
         <body xmlns="http://www.w3.org/1999/xhtml" class="blocklyMinimalBody">
-
         </body>
       </foreignObject>
     */
-    this.foreignObject_ = Blockly.createSvgElement('foreignObject',
-        {'x': Blockly.Bubble.BORDER_WIDTH, 'y': Blockly.Bubble.BORDER_WIDTH},
-        null);
-    var body = document.createElementNS(Blockly.HTML_NS, 'body');
-    body.setAttribute('xmlns', Blockly.HTML_NS);
-    body.className = 'blocklyMinimalBody';
-    return this.foreignObject_;
-};
+    for (var key in this.metas_) {
+        var label = goog.dom.createDom('p', 'blocklyMetaModal');
+        var truc = goog.dom.createDom('input', 'blocklyMetaModal');
 
-/**
- * Set the icon location
- * @private
- */
-Blockly.FieldMeta.prototype.setIconLocation_ = function () {
-    var blockXY = this.sourceBlock_.getRelativeToSurfaceXY();
-    var iconXY = Blockly.getRelativeXY_(this.fieldGroup_);
-    var newXY = new goog.math.Coordinate(
-        blockXY.x + iconXY.x + this.ICON_SIZE_ / 2,
-        blockXY.y + iconXY.y + this.ICON_SIZE_ / 2);
-    this.iconXY_ = newXY;
+        goog.dom.setProperties(label, {textContent: key});
+        goog.dom.setProperties(truc, {value: this.metas_[key]});
+        this.modalDiv.appendChild(label);
+        this.modalDiv.appendChild(truc);
+    }
+
 };
 
 /**
@@ -163,26 +186,71 @@ Blockly.FieldMeta.prototype.setIconLocation_ = function () {
  * @param {boolean} visible True if the bubble should be visible.
  */
 Blockly.FieldMeta.prototype.showEditor_ = function () {
-    if (!this.isVisible()) {
-        var blockXY = this.sourceBlock_.getRelativeToSurfaceXY();
-        var iconXY = Blockly.getRelativeXY_(this.fieldGroup_);
-        var newXY = new goog.math.Coordinate(
-            blockXY.x + iconXY.x + this.ICON_SIZE_ / 2,
-            blockXY.y + iconXY.y + this.ICON_SIZE_ / 2);
+    Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL,
+        Blockly.FieldColour.widgetDispose_);
 
-        this.bubble_ = new Blockly.Bubble(
-            /** @type {!Blockly.WorkspaceSvg} */ (this.sourceBlock_.workspace),
-            this.createEditor_(), this.sourceBlock_.svgPath_,
-            newXY, this.width_, this.height_);
-    } else {
-        this.bubble_.dispose();
-        this.bubble_ = null;
-    }
+    var div = Blockly.WidgetDiv.DIV;
+    this.modalDiv = goog.dom.createDom('DIV', 'blocklyMetaModal');
+    this.setModalMetrics_();
+
+    //Create an overlay on the workspace
+    var svg = this.sourceBlock_.workspace.getParentSvg();
+    var svgPosition = goog.style.getPageOffset(svg);
+    var svgSize = Blockly.svgSize(svg);
+    var scrollOffset = goog.style.getViewportPageOffset(document);
+
+    Blockly.WidgetDiv.position(svgPosition.x, svgPosition.y, svgSize, scrollOffset,
+        this.sourceBlock_.RTL);
+    Blockly.WidgetDiv.DIV.style.height = svgSize.height;
+    Blockly.WidgetDiv.DIV.style.width = svgSize.width;
+
+    Blockly.WidgetDiv.DIV.style.backgroundColor = 'rgba(205, 205, 205, 0.5)';
+
+    div.appendChild(this.modalDiv);
+    this.createEditor_();
+
+    var that = this;
+    // Configure event handler.
+    Blockly.FieldMeta.changeEventKey_ = goog.events.listen(div,
+        goog.events.EventType.CLICK,
+        function (event) {
+            if (event.target !== that.modalDiv) {
+                that.widgetDispose_();
+
+                return;
+            }
+        });
 };
 
+/**
+ * Set the modal location
+ * @private
+ */
+Blockly.FieldMeta.prototype.setModalMetrics_ = function () {
+
+    this.modalDiv.style.position = 'absolute';
+    this.modalDiv.style.top = '40%';
+    this.modalDiv.style.left = '50%';
+    this.modalDiv.style.width = '200px';
+    this.modalDiv.style.height = '200px';
+    this.modalDiv.style.transform = 'translate(-50%,-50%)';
+    this.modalDiv.style.backgroundColor = 'rgba(140, 140, 140, 0.9)';
+    this.modalDiv.style.boxShadow = 'rgba(140, 140, 140, 0.9)';
+};
 
 Blockly.FieldMeta.prototype.dispose = function () {
-    if (this.isVisible()) {
-        this.bubble_.dispose();
+    Blockly.FieldMeta.superClass_.getSize.call(this);
+    this.widgetDispose_();
+};
+
+/**
+ * Hide the overlay meta.
+ * @private
+ */
+Blockly.FieldMeta.prototype.widgetDispose_ = function () {
+    if (Blockly.FieldMeta.changeEventKey_) {
+        goog.events.unlistenByKey(Blockly.FieldMeta.changeEventKey_);
     }
+    Blockly.WidgetDiv.hideIfOwner(this);
+    this.modalDiv = null;
 };
