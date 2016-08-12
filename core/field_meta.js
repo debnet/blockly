@@ -75,6 +75,10 @@ Blockly.FieldMeta.prototype.showLabel_ = function () {
     }
 };
 
+/**
+ * Compute the width form the label length and the icon size.
+ * @returns {goog.math.Size|*}
+ */
 Blockly.FieldMeta.prototype.getSize = function () {
     Blockly.FieldMeta.superClass_.getSize.call(this);
     var widthText = 0;
@@ -169,9 +173,18 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         </body>
       </foreignObject>
     */
+    var title = goog.dom.createDom('p', 'blocklyText');
+    goog.dom.setProperties(title, {textContent: "Modification de " + this.sourceBlock_.type});
+
+    var close = goog.dom.createDom('a', 'blocklyCloseModal');
+    goog.dom.setProperties(close, {textContent: "×"});
+
+    this.modalDiv.appendChild(title);
+    this.modalDiv.appendChild(close);
+
     for (var key in this.metas_) {
-        var label = goog.dom.createDom('p', 'blocklyMetaModal');
-        var truc = goog.dom.createDom('input', 'blocklyMetaModal');
+        var label = goog.dom.createDom('p', 'blocklyText');
+        var truc = goog.dom.createDom('input', 'blocklyInput');
 
         goog.dom.setProperties(label, {textContent: key});
         goog.dom.setProperties(truc, {value: this.metas_[key]});
@@ -187,7 +200,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
  */
 Blockly.FieldMeta.prototype.showEditor_ = function () {
     Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL,
-        Blockly.FieldColour.widgetDispose_);
+        Blockly.FieldMeta.widgetDispose_);
 
     var div = Blockly.WidgetDiv.DIV;
     this.modalDiv = goog.dom.createDom('DIV', 'blocklyMetaModal');
@@ -214,9 +227,8 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
     Blockly.FieldMeta.changeEventKey_ = goog.events.listen(div,
         goog.events.EventType.CLICK,
         function (event) {
-            if (event.target !== that.modalDiv) {
+            if (event.target === Blockly.WidgetDiv.DIV) {
                 that.widgetDispose_();
-
                 return;
             }
         });
@@ -247,10 +259,32 @@ Blockly.FieldMeta.prototype.dispose = function () {
  * Hide the overlay meta.
  * @private
  */
-Blockly.FieldMeta.prototype.widgetDispose_ = function () {
+Blockly.FieldMeta.widgetDispose_ = function () {
     if (Blockly.FieldMeta.changeEventKey_) {
         goog.events.unlistenByKey(Blockly.FieldMeta.changeEventKey_);
     }
     Blockly.WidgetDiv.hideIfOwner(this);
     this.modalDiv = null;
 };
+
+
+/**
+ * CSS for date picker.  See css.js for use.
+ */
+Blockly.FieldMeta.CSS = [
+  /* Copied from: goog/css/datepicker.css */
+  /**
+   * Copyright 2009 The Closure Library Authors. All Rights Reserved.
+   *
+   * Use of this source code is governed by the Apache License, Version 2.0.
+   * See the COPYING file for details.
+   */
+
+
+  '.blocklyWidgetDiv {',
+  '  background: #9ab;',
+  '  font-weight: bold !important;',
+  '  border-color: #246 #9bd #9bd #246;',
+  '  background-color: #fff;',
+  '}'
+];
