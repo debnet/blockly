@@ -162,6 +162,35 @@ Blockly.FieldMeta.prototype.getValue = function () {
     return JSON.stringify(this.metas_);
 };
 
+Blockly.FieldMeta.prototype.addFieldset_ = function (label, field, readOnly) {
+    var fieldSet = goog.dom.createDom('fieldset');
+    var labelField = goog.dom.createDom('input', 'blocklyInput');
+    var value = goog.dom.createDom('input', 'blocklyInput');
+
+    goog.dom.setProperties(labelField, {value: label});
+    goog.dom.setProperties(value, {value: field});
+    fieldSet.appendChild(labelField);
+    fieldSet.appendChild(value);
+
+    //We can delete a field not required
+    if (!readOnly) {
+        var minus = goog.dom.createDom('button', 'blocklyMinus');
+        goog.dom.setTextContent(minus, '-');
+        fieldSet.appendChild(minus);
+        var thisField = this;
+        goog.events.listen(minus,
+            goog.events.EventType.CLICK,
+            function (event) {
+                goog.dom.removeNode(fieldSet);
+                thisField.setModalMetrics_();
+                //delete thisField.metas_[label.value];
+            });
+    } else {//We can't change the label of a required field
+        goog.dom.setProperties(labelField, {readOnly: label});
+    }
+    this.form.appendChild(fieldSet);
+};
+
 /**
  * Create the editor for the fiedlMeta's modal.
  * @private
@@ -173,24 +202,72 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         </body>
       </foreignObject>
     */
-    var title = goog.dom.createDom('p', 'blocklyText');
+
+    var title = goog.dom.createDom('span', 'blocklyText');
     goog.dom.setProperties(title, {textContent: "Modification de " + this.sourceBlock_.type});
 
     var close = goog.dom.createDom('a', 'blocklyCloseModal');
     goog.dom.setProperties(close, {textContent: "×"});
+    goog.events.listen(close,
+        goog.events.EventType.CLICK,
+        function (event) {
+            Blockly.FieldMeta.widgetDispose_();
+        });
+
+
+    this.form = goog.dom.createDom('form');
+    goog.dom.setProperties(this.form, {name: 'metas'});
+
+    //show required fields first
+    if (this.options.required) {
+        for (var i = 0; i < this.options.required.length; ++i) {
+            this.addFieldset_(this.options.required[i], this.metas_[this.options.required[i]] || "default", true);
+        }
+    }
+
+    //show metadatas
+    for (var key in this.metas_) {
+        //We don't show required field again
+        if (!this.metas_.hasOwnProperty(key) || ~this.options.required.indexOf(key))
+            continue;
+        this.addFieldset_(key, this.metas_[key]);
+    }
+
+
+    var plus = goog.dom.createDom('button', 'blocklyButton');
+    goog.dom.setTextContent(plus, '+');
+
+    var thisField = this;
+    goog.events.listen(plus,
+        goog.events.EventType.CLICK,
+        function (event) {
+            thisField.addFieldset_('default', 'default');
+            thisField.setModalMetrics_();
+        });
+
+    var confirm = goog.dom.createDom('button', 'blocklyButton');
+    goog.dom.setTextContent(confirm, 'Valider');
+
+    goog.events.listen(confirm,
+        goog.events.EventType.CLICK,
+        function (event) {
+            var metas = {};
+            var fields = thisField.form.getElementsByTagName('fieldset');
+            for (var i = 0; i < fields.length; ++i) {
+                metas[fields[i].children[0].value] = fields[i].children[1].value;
+            }
+            thisField.setValue(metas);
+            thisField.showLabel_();
+            Blockly.FieldMeta.widgetDispose_();
+        });
+
 
     this.modalDiv.appendChild(title);
     this.modalDiv.appendChild(close);
+    this.modalDiv.appendChild(this.form);
 
-    for (var key in this.metas_) {
-        var label = goog.dom.createDom('p', 'blocklyText');
-        var truc = goog.dom.createDom('input', 'blocklyInput');
-
-        goog.dom.setProperties(label, {textContent: key});
-        goog.dom.setProperties(truc, {value: this.metas_[key]});
-        this.modalDiv.appendChild(label);
-        this.modalDiv.appendChild(truc);
-    }
+    this.modalDiv.appendChild(plus);
+    this.modalDiv.appendChild(confirm);
 
 };
 
@@ -202,9 +279,9 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
     Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL,
         Blockly.FieldMeta.widgetDispose_);
 
-    var div = Blockly.WidgetDiv.DIV;
+    var div = goog.dom.createDom('DIV');
+    Blockly.WidgetDiv.DIV.appendChild(div);
     this.modalDiv = goog.dom.createDom('DIV', 'blocklyMetaModal');
-    this.setModalMetrics_();
 
     //Create an overlay on the workspace
     var svg = this.sourceBlock_.workspace.getParentSvg();
@@ -214,21 +291,24 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
 
     Blockly.WidgetDiv.position(svgPosition.x, svgPosition.y, svgSize, scrollOffset,
         this.sourceBlock_.RTL);
-    Blockly.WidgetDiv.DIV.style.height = svgSize.height;
-    Blockly.WidgetDiv.DIV.style.width = svgSize.width;
 
-    Blockly.WidgetDiv.DIV.style.backgroundColor = 'rgba(205, 205, 205, 0.5)';
+    div.style.height = svgSize.height;
+    div.style.width = svgSize.width;
+    div.style.backgroundColor = 'rgba(205, 205, 205, 0.5)';
+    Blockly.WidgetDiv.DIV.style.backgroundColor = 'rgba(0, 0, 0, 0)';
 
     div.appendChild(this.modalDiv);
     this.createEditor_();
+    this.setModalMetrics_();
 
-    var that = this;
-    // Configure event handler.
+    var thisField = this;
+    // Configure event handler. Backdrop
     Blockly.FieldMeta.changeEventKey_ = goog.events.listen(div,
         goog.events.EventType.CLICK,
         function (event) {
-            if (event.target === Blockly.WidgetDiv.DIV) {
-                that.widgetDispose_();
+            if (event.target === thisField.modalDiv.parentElement) {
+                Blockly.FieldMeta.widgetDispose_();
+                thisField.modalDiv = null;
                 return;
             }
         });
@@ -239,20 +319,18 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
  * @private
  */
 Blockly.FieldMeta.prototype.setModalMetrics_ = function () {
-
-    this.modalDiv.style.position = 'absolute';
     this.modalDiv.style.top = '40%';
     this.modalDiv.style.left = '50%';
-    this.modalDiv.style.width = '200px';
-    this.modalDiv.style.height = '200px';
+    this.modalDiv.style.width = '400px';
+
+    this.modalDiv.style.height = 14 + 16 + this.form.getElementsByTagName('fieldset').length * 26 + 14 + 26 + 14 + 'px';
     this.modalDiv.style.transform = 'translate(-50%,-50%)';
-    this.modalDiv.style.backgroundColor = 'rgba(140, 140, 140, 0.9)';
-    this.modalDiv.style.boxShadow = 'rgba(140, 140, 140, 0.9)';
 };
 
 Blockly.FieldMeta.prototype.dispose = function () {
-    Blockly.FieldMeta.superClass_.getSize.call(this);
-    this.widgetDispose_();
+    Blockly.FieldMeta.superClass_.dispose.call(this);
+    this.modalDiv = null;
+    this.form = null;
 };
 
 /**
@@ -263,8 +341,8 @@ Blockly.FieldMeta.widgetDispose_ = function () {
     if (Blockly.FieldMeta.changeEventKey_) {
         goog.events.unlistenByKey(Blockly.FieldMeta.changeEventKey_);
     }
-    Blockly.WidgetDiv.hideIfOwner(this);
-    this.modalDiv = null;
+
+    Blockly.WidgetDiv.hide();
 };
 
 
@@ -272,19 +350,40 @@ Blockly.FieldMeta.widgetDispose_ = function () {
  * CSS for date picker.  See css.js for use.
  */
 Blockly.FieldMeta.CSS = [
-  /* Copied from: goog/css/datepicker.css */
-  /**
-   * Copyright 2009 The Closure Library Authors. All Rights Reserved.
-   *
-   * Use of this source code is governed by the Apache License, Version 2.0.
-   * See the COPYING file for details.
-   */
+    /* Copied from: goog/css/datepicker.css */
+/**
+ * Copyright 2009 The Closure Library Authors. All Rights Reserved.
+ *
+ * Use of this source code is governed by the Apache License, Version 2.0.
+ * See the COPYING file for details.
+ */
 
 
-  '.blocklyWidgetDiv {',
-  '  background: #9ab;',
-  '  font-weight: bold !important;',
-  '  border-color: #246 #9bd #9bd #246;',
-  '  background-color: #fff;',
-  '}'
+    '.blocklyWidgetDiv {',
+    '  background: #9ab;',
+    '  font-weight: bold !important;',
+    '  border-color: #246 #9bd #9bd #246;',
+    '  background-color: #fff;',
+    '}',
+
+    '.blocklyWidgetDiv .blocklyMetaModal{',
+    '   position : absolute;',
+    //    'top : 40%;',
+    '   padding : 14px;',
+    //    'left : 50%;',
+    //    'width : 200px;',
+    //    'height : 200px;',
+    '   transform : translate(-50%,-50%);',
+    '   background-color : rgba(140, 140, 140, 0.9);',
+    '   box-shadow : 5px 5px 5px rgba(140, 140, 140, 0.7);',
+    '   border-radius : 10px;',
+    '}',
+
+    '.blocklyWidgetDiv .blocklyMetaModal .BlocklyButton{',
+    '   float : right;',
+    '}',
+
+    '.blocklyWidgetDiv .blocklyMetaModal .BlocklyCloseModal{',
+    '   float : right;',
+    '}',
 ];
