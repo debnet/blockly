@@ -10,11 +10,12 @@ goog.require('goog.dom');
 goog.require('goog.style');
 
 
-Blockly.FieldMeta = function (metas, opt_validator) {
+Blockly.FieldMeta = function (metas, opt, validator) {
     //Blockly.FieldMeta.superClass_.constructor.call(this, '', opt_validator);
     this.size_ = new goog.math.Size(0, 0);
     this.setValue(metas);
-    this.options = opt_validator;
+    this.options = opt;
+    this.validator = validator;
 };
 goog.inherits(Blockly.FieldMeta, Blockly.Field);
 
@@ -233,17 +234,18 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         this.addFieldset_(key, this.metas_[key]);
     }
 
+    if (!this.options.addMeta) {
+        var plus = goog.dom.createDom('button', 'blocklyButton');
+        goog.dom.setTextContent(plus, '+');
 
-    var plus = goog.dom.createDom('button', 'blocklyButton');
-    goog.dom.setTextContent(plus, '+');
-
-    var thisField = this;
-    goog.events.listen(plus,
-        goog.events.EventType.CLICK,
-        function (event) {
-            thisField.addFieldset_('default', 'default');
-            thisField.setModalMetrics_();
-        });
+        var thisField = this;
+        goog.events.listen(plus,
+            goog.events.EventType.CLICK,
+            function (event) {
+                thisField.addFieldset_('default', 'default');
+                thisField.setModalMetrics_();
+            });
+    }
 
     var confirm = goog.dom.createDom('button', 'blocklyButton');
     goog.dom.setTextContent(confirm, 'Valider');
@@ -256,6 +258,8 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
             for (var i = 0; i < fields.length; ++i) {
                 metas[fields[i].children[0].value] = fields[i].children[1].value;
             }
+            //TODO use the validator correctly
+            //if(this.validator_)
             thisField.setValue(metas);
             thisField.showLabel_();
             Blockly.FieldMeta.widgetDispose_();
@@ -314,6 +318,7 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
         });
 };
 
+//TODO delete this method and add a draggable
 /**
  * Set the modal location
  * @private
@@ -321,9 +326,6 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
 Blockly.FieldMeta.prototype.setModalMetrics_ = function () {
     this.modalDiv.style.top = '40%';
     this.modalDiv.style.left = '50%';
-    this.modalDiv.style.width = '400px';
-
-    this.modalDiv.style.height = 14 + 16 + this.form.getElementsByTagName('fieldset').length * 26 + 14 + 26 + 14 + 'px';
     this.modalDiv.style.transform = 'translate(-50%,-50%)';
 };
 
@@ -368,11 +370,8 @@ Blockly.FieldMeta.CSS = [
 
     '.blocklyWidgetDiv .blocklyMetaModal{',
     '   position : absolute;',
-    //    'top : 40%;',
+
     '   padding : 14px;',
-    //    'left : 50%;',
-    //    'width : 200px;',
-    //    'height : 200px;',
     '   transform : translate(-50%,-50%);',
     '   background-color : rgba(140, 140, 140, 0.9);',
     '   box-shadow : 5px 5px 5px rgba(140, 140, 140, 0.7);',
