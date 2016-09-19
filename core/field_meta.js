@@ -11,11 +11,9 @@ goog.require('goog.style');
 
 
 Blockly.FieldMeta = function (metas, opt, validator) {
-    //Blockly.FieldMeta.superClass_.constructor.call(this, '', opt_validator);
-    this.size_ = new goog.math.Size(0, 0);
-    this.setValue(metas);
     this.options = opt;
-    this.validator = validator;
+    Blockly.FieldMeta.superClass_.constructor.call(this, metas, validator);
+    this.size_ = new goog.math.Size(0, 0);
 };
 goog.inherits(Blockly.FieldMeta, Blockly.Field);
 
@@ -63,14 +61,6 @@ Blockly.FieldMeta.prototype.drawIcon_ = function () {
 
 Blockly.FieldMeta.prototype.showLabel_ = function () {
     if (this.options.label) {
-        if (!this.textElement_) {
-            this.textElement_ = Blockly.createSvgElement('text',
-                {
-                    'x': '20', 'y': this.ICON_SIZE_ - 3.5,
-                    'class': 'blocklyText'
-                },
-                this.fieldGroup_);
-        }
         this.setText(this.metas_[this.options.label]);
         this.updateTextNode_();
     }
@@ -102,7 +92,7 @@ Blockly.FieldMeta.prototype.getSize = function () {
 Blockly.FieldMeta.prototype.init = function () {
     //Blockly.FieldMeta.superClass_.init.call(this);
     if (this.fieldGroup_) {
-        // Checkbox has already been initialized once.
+        // Metas has already been initialized once.
         return;
     }
     this.fieldGroup_ = Blockly.createSvgElement('g', {
@@ -111,9 +101,15 @@ Blockly.FieldMeta.prototype.init = function () {
     if (!this.visible_) {
         this.fieldGroup_.style.display = 'none';
     }
+    this.textElement_ = Blockly.createSvgElement('text',
+        {
+            'x': '20', 'y': this.ICON_SIZE_ - 3.5,
+            'class': 'blocklyText'
+        },
+        this.fieldGroup_);
 
     this.drawIcon_();
-    this.showLabel_();
+    this.updateTextNode_();
     this.updateEditable();
     this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
     this.mouseUpWrapper_ =
@@ -159,13 +155,14 @@ Blockly.FieldMeta.prototype.setValue = function (metas) {
     if (typeof metas === 'string')
         newMetas = JSON.parse(metas);
     else newMetas = metas;
-    if(newMetas === oldMetas)
+    if (newMetas === oldMetas)
         return;
     if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
         Blockly.Events.fire(new Blockly.Events.Change(
             this.sourceBlock_, 'field', this.name, oldMetas, newMetas));
     }
     this.metas_ = newMetas;
+    this.showLabel_();
 };
 
 Blockly.FieldMeta.prototype.getValue = function () {
@@ -270,7 +267,6 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
             //TODO use the validator correctly
             //if(this.validator_)
             thisField.setValue(metas);
-            thisField.showLabel_();
             Blockly.FieldMeta.widgetDispose_();
         });
 
@@ -281,7 +277,6 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
 
     this.modalDiv.appendChild(plus);
     this.modalDiv.appendChild(confirm);
-
 };
 
 /**
