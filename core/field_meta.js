@@ -154,9 +154,18 @@ Blockly.FieldMeta.prototype.isVisible = function () {
 };
 
 Blockly.FieldMeta.prototype.setValue = function (metas) {
+    var newMetas = {};
+    var oldMetas = this.metas_;
     if (typeof metas === 'string')
-        this.metas_ = JSON.parse(metas);
-    else this.metas_ = metas;
+        newMetas = JSON.parse(metas);
+    else newMetas = metas;
+    if(newMetas === oldMetas)
+        return;
+    if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
+        Blockly.Events.fire(new Blockly.Events.Change(
+            this.sourceBlock_, 'field', this.name, oldMetas, newMetas));
+    }
+    this.metas_ = newMetas;
 };
 
 Blockly.FieldMeta.prototype.getValue = function () {
