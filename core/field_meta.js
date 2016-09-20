@@ -365,6 +365,15 @@ Blockly.FieldMeta.CSS = [
  * See the COPYING file for details.
  */
 
+    '.blocklyEditableField .blocklyFieldMetaShape {',
+    '    fill: #fff;',
+    '    fill-opacity: 0.1;',
+    '    stroke: #fff;',
+    '}',
+
+    '.blocklyEditableField .blocklyFieldMetaSymbol {',
+    '    fill: #fff;',
+    '}',
 
     '.blocklyWidgetDiv {',
     '  background: #9ab;',
@@ -375,7 +384,6 @@ Blockly.FieldMeta.CSS = [
 
     '.blocklyWidgetDiv .blocklyMetaModal{',
     '   position : absolute;',
-
     '   padding : 14px;',
     '   transform : translate(-50%,-50%);',
     '   background-color : rgba(140, 140, 140, 0.9);',
