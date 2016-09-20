@@ -240,11 +240,12 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         this.addFieldset_(key, this.metas_[key]);
     }
 
+    var thisField = this;
     if (!this.options.addMeta) {
         var plus = goog.dom.createDom('button', 'blocklyButton');
         goog.dom.setTextContent(plus, '+');
 
-        var thisField = this;
+
         goog.events.listen(plus,
             goog.events.EventType.CLICK,
             function (event) {
@@ -265,7 +266,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
                 metas[fields[i].children[0].value] = fields[i].children[1].value;
             }
             //TODO use the validator correctly
-            //if(this.validator_)
+            thisField.validator_ && thisField.validator_(metas);
             thisField.setValue(metas);
             Blockly.FieldMeta.widgetDispose_();
         });
