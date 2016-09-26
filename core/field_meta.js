@@ -193,7 +193,7 @@ Blockly.FieldMeta.prototype.addFieldset_ = function (label, field, readOnly) {
                 //delete thisField.metas_[label.value];
             });
     } else {//We can't change the label of a required field
-        goog.dom.setProperties(labelField, {readOnly: label});
+        goog.dom.setProperties(labelField, {readOnly: label, tabIndex: '-1'});
     }
     this.form.appendChild(fieldSet);
 };
@@ -209,6 +209,11 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         </body>
       </foreignObject>
     */
+
+    var dragHandle = goog.dom.createDom('div', 'blocklyDragHandle');
+    goog.events.listen(dragHandle, goog.events.EventType.DRAG, function (event) {
+        event;
+    });
 
     var title = goog.dom.createDom('span', 'blocklyText');
     goog.dom.setProperties(title, {textContent: "Modification de " + this.sourceBlock_.type});
@@ -245,7 +250,6 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         var plus = goog.dom.createDom('button', 'blocklyButton');
         goog.dom.setTextContent(plus, '+');
 
-
         goog.events.listen(plus,
             goog.events.EventType.CLICK,
             function (event) {
@@ -254,26 +258,28 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
             });
     }
 
-    var confirm = goog.dom.createDom('button', 'blocklyButton');
+    var confirm = goog.dom.createDom('button', {class: 'blocklyButton', type: 'submit'});
     goog.dom.setTextContent(confirm, 'Valider');
 
-    goog.events.listen(confirm,
-        goog.events.EventType.CLICK,
-        function (event) {
-            var metas = {};
-            var fields = thisField.form.getElementsByTagName('fieldset');
-            for (var i = 0; i < fields.length; ++i) {
-                metas[fields[i].children[0].value] = fields[i].children[1].value;
-            }
-            //TODO use the validator correctly
-            thisField.validator_ && thisField.validator_(metas);
-            thisField.setValue(metas);
-            Blockly.FieldMeta.widgetDispose_();
-        });
+    function confirmation(event) {
+        if (event.type === goog.events.EventType.KEYDOWN && event.keyCode !== 13)
+            return;
+        var metas = {};
+        var fields = thisField.form.getElementsByTagName('fieldset');
+        for (var i = 0; i < fields.length; ++i) {
+            metas[fields[i].children[0].value] = fields[i].children[1].value;
+        }
+        thisField.validator_ && thisField.validator_(metas);
+        thisField.setValue(metas);
+        Blockly.FieldMeta.widgetDispose_();
+    }
 
+    goog.events.listen(confirm, goog.events.EventType.CLICK, confirmation);
+    goog.events.listen(this.modalDiv, goog.events.EventType.KEYDOWN, confirmation);
 
-    this.modalDiv.appendChild(title);
-    this.modalDiv.appendChild(close);
+    this.modalDiv.appendChild(dragHandle);
+    dragHandle.appendChild(title);
+    dragHandle.appendChild(close);
     this.modalDiv.appendChild(this.form);
 
     this.modalDiv.appendChild(plus);
