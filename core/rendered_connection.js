@@ -153,8 +153,9 @@ Blockly.RenderedConnection.prototype.setOffsetInBlock = function(x, y) {
  * @private
  */
 Blockly.RenderedConnection.prototype.tighten_ = function() {
-  var dx = this.targetConnection.x_ - this.x_;
-  var dy = this.targetConnection.y_ - this.y_;
+  var targetBlockXY = this.targetConnection.getSourceBlock().getRelativeToSurfaceXY();
+  var dx = targetBlockXY.x + this.targetConnection.offsetInBlock_.x - this.x_;
+  var dy = targetBlockXY.y + this.targetConnection.offsetInBlock_.y - this.y_;
   if (dx != 0 || dy != 0) {
     var block = this.targetBlock();
     var svgRoot = block.getSvgRoot();
