@@ -4,7 +4,6 @@ goog.provide('Blockly.FieldMeta');
 
 
 goog.require('Blockly.Field');
-goog.require('Blockly.Bubble');
 goog.require('Blockly.Icon');
 goog.require('goog.dom');
 goog.require('goog.style');
@@ -211,9 +210,9 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
     */
 
     var dragHandle = goog.dom.createDom('div', 'blocklyDragHandle');
-    goog.events.listen(dragHandle, goog.events.EventType.DRAG, function (event) {
-        event;
-    });
+    //goog.events.listen(dragHandle, goog.events.EventType.DRAG, function (event) {
+    //    event;
+    //});
 
     var title = goog.dom.createDom('span', 'blocklyText');
     goog.dom.setProperties(title, {textContent: "Modification de " + this.sourceBlock_.type});
@@ -287,8 +286,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
 };
 
 /**
- * Show or hide the field bubble.
- * @param {boolean} visible True if the bubble should be visible.
+ * Show or hide the field widgetDiv.
  */
 Blockly.FieldMeta.prototype.showEditor_ = function () {
     Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL,

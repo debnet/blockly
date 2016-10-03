@@ -39,7 +39,7 @@ window.BLOCKLY_BOOT = function() {
     dir = window.BLOCKLY_DIR.match(/[^\/]+$/)[0];
   }
 goog.addDependency("../../../" + dir + "/core/block.js", ['Blockly.Block'], ['Blockly.Blocks', 'Blockly.Comment', 'Blockly.Connection', 'Blockly.Input', 'Blockly.Mutator', 'Blockly.Warning', 'Blockly.Workspace', 'Blockly.Xml', 'goog.array', 'goog.asserts', 'goog.math.Coordinate', 'goog.string']);
-goog.addDependency("../../../" + dir + "/core/blockly.js", ['Blockly'], ['Blockly.BlockSvg.render', 'Blockly.Events', 'Blockly.FieldAngle', 'Blockly.FieldCheckbox', 'Blockly.FieldColour', 'Blockly.FieldDropdown', 'Blockly.FieldImage', 'Blockly.FieldTextInput', 'Blockly.FieldNumber', 'Blockly.FieldVariable', 'Blockly.Generator', 'Blockly.Msg', 'Blockly.Procedures', 'Blockly.Toolbox', 'Blockly.WidgetDiv', 'Blockly.WorkspaceSvg', 'Blockly.constants', 'Blockly.inject', 'Blockly.utils', 'goog.color', 'goog.userAgent']);
+goog.addDependency("../../../" + dir + "/core/blockly.js", ['Blockly'], ['Blockly.BlockSvg.render', 'Blockly.Events', 'Blockly.FieldAngle', 'Blockly.FieldCheckbox', 'Blockly.FieldColour', 'Blockly.FieldDropdown', 'Blockly.FieldImage', 'Blockly.FieldTextInput', 'Blockly.FieldNumber', 'Blockly.FieldVariable', 'Blockly.FieldMeta', 'Blockly.Generator', 'Blockly.Msg', 'Blockly.Procedures', 'Blockly.Toolbox', 'Blockly.WidgetDiv', 'Blockly.WorkspaceSvg', 'Blockly.constants', 'Blockly.inject', 'Blockly.utils', 'goog.color', 'goog.userAgent']);
 goog.addDependency("../../../" + dir + "/core/blocks.js", ['Blockly.Blocks'], []);
 goog.addDependency("../../../" + dir + "/core/block_render_svg.js", ['Blockly.BlockSvg.render'], ['Blockly.BlockSvg']);
 goog.addDependency("../../../" + dir + "/core/block_svg.js", ['Blockly.BlockSvg'], ['Blockly.Block', 'Blockly.ContextMenu', 'Blockly.RenderedConnection', 'goog.Timer', 'goog.asserts', 'goog.dom', 'goog.math.Coordinate', 'goog.userAgent']);
@@ -59,7 +59,7 @@ goog.addDependency("../../../" + dir + "/core/field_date.js", ['Blockly.FieldDat
 goog.addDependency("../../../" + dir + "/core/field_dropdown.js", ['Blockly.FieldDropdown'], ['Blockly.Field', 'goog.dom', 'goog.events', 'goog.style', 'goog.ui.Menu', 'goog.ui.MenuItem', 'goog.userAgent']);
 goog.addDependency("../../../" + dir + "/core/field_image.js", ['Blockly.FieldImage'], ['Blockly.Field', 'goog.dom', 'goog.math.Size', 'goog.userAgent']);
 goog.addDependency("../../../" + dir + "/core/field_label.js", ['Blockly.FieldLabel'], ['Blockly.Field', 'Blockly.Tooltip', 'goog.dom', 'goog.math.Size']);
-goog.addDependency("../../../" + dir + "/core/field_meta.js", ['Blockly.FieldMeta'], ['Blockly.Field', 'Blockly.Bubble', 'Blockly.Icon', 'goog.dom', 'goog.style']);
+goog.addDependency("../../../" + dir + "/core/field_meta.js", ['Blockly.FieldMeta'], ['Blockly.Field', 'Blockly.Icon', 'goog.dom', 'goog.style']);
 goog.addDependency("../../../" + dir + "/core/field_number.js", ['Blockly.FieldNumber'], ['Blockly.FieldTextInput', 'goog.math']);
 goog.addDependency("../../../" + dir + "/core/field_textinput.js", ['Blockly.FieldTextInput'], ['Blockly.Field', 'Blockly.Msg', 'goog.asserts', 'goog.dom', 'goog.dom.TagName', 'goog.userAgent']);
 goog.addDependency("../../../" + dir + "/core/field_variable.js", ['Blockly.FieldVariable'], ['Blockly.FieldDropdown', 'Blockly.Msg', 'Blockly.Variables', 'goog.string']);
