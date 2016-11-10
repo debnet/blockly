@@ -1,12 +1,12 @@
 /**
  * @license
- * Visual Blocks Editor
+ * Blockly Demos: Block Factory
  *
  * Copyright 2016 Google Inc.
  * https://developers.google.com/blockly/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * You may not use this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
@@ -33,11 +33,11 @@ goog.require('BlockExporterTools');
 goog.require('BlockOption');
 goog.require('goog.dom');
 
+
 /**
  * BlockExporter View Class
+ * @param {!Object} blockOptions Map of block types to BlockOption objects.
  * @constructor
- *
- * @param {!Object} blockOptions - Map of block types to BlockOption objects.
  */
 BlockExporterView = function(blockOptions) {
   //  Map of block types to BlockOption objects to select from.
@@ -47,27 +47,10 @@ BlockExporterView = function(blockOptions) {
 /**
  * Set the block options in the selector of this instance of
  * BlockExporterView.
- *
- * @param {!Object} blockOptions - Map of block types to BlockOption objects.
+ * @param {!Object} blockOptions Map of block types to BlockOption objects.
  */
 BlockExporterView.prototype.setBlockOptions = function(blockOptions) {
   this.blockOptions = blockOptions;
-};
-
-/**
- * Updates the helper text.
- *
- * @param {string} newText - New helper text.
- * @param {boolean} opt_append - True if appending to helper Text, false if
- *    replacing.
- */
-BlockExporterView.prototype.updateHelperText = function(newText, opt_append) {
-  if (opt_append) {
-    goog.dom.getElement('helperText').textContent =
-        goog.dom.getElement('helperText').textContent + newText;
-  } else {
-    goog.dom.getElement('helperText').textContent = newText;
-  }
 };
 
 /**
@@ -76,13 +59,12 @@ BlockExporterView.prototype.updateHelperText = function(newText, opt_append) {
 BlockExporterView.prototype.listSelectedBlocks = function() {
 
   var selectedBlocksText = this.getSelectedBlockTypes().join(",\n ");
-  goog.dom.getElement('selectedBlocksText').textContent = selectedBlocksText;
+  document.getElementById('selectedBlocksText').textContent = selectedBlocksText;
 };
 
 /**
  * Selects a given block type in the selector.
- *
- * @param {string} blockType - Type of block to selector.
+ * @param {string} blockType Type of block to selector.
  */
 BlockExporterView.prototype.select = function(blockType) {
   this.blockOptions[blockType].setSelected(true);
@@ -90,8 +72,7 @@ BlockExporterView.prototype.select = function(blockType) {
 
 /**
  * Deselects a block in the selector.
- *
- * @param {!Blockly.Block} block - Type of block to add to selector workspce.
+ * @param {!Blockly.Block} block Type of block to add to selector workspce.
  */
 BlockExporterView.prototype.deselect = function(blockType) {
   this.blockOptions[blockType].setSelected(false);
@@ -110,8 +91,7 @@ BlockExporterView.prototype.deselectAllBlocks = function() {
 /**
  * Given an array of selected blocks, selects these blocks in the view, marking
  * the checkboxes accordingly.
- *
- * @param {Array.<Blockly.Block>} blockTypes - Array of block types to select.
+ * @param {Array.<Blockly.Block>} blockTypes Array of block types to select.
  */
 BlockExporterView.prototype.setSelectedBlockTypes = function(blockTypes) {
   for (var i = 0, blockType; blockType = blockTypes[i]; i++) {
@@ -121,8 +101,7 @@ BlockExporterView.prototype.setSelectedBlockTypes = function(blockTypes) {
 
 /**
  * Returns array of selected blocks.
- *
- * @return {!Array.<!string>} Array of all selected block types.
+ * @return {!Array.<string>} Array of all selected block types.
  */
 BlockExporterView.prototype.getSelectedBlockTypes = function() {
   var selectedTypes = [];

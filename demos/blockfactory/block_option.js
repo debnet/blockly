@@ -1,12 +1,12 @@
 /**
  * @license
- * Visual Blocks Editor
+ * Blockly Demos: Block Factory
  *
  * Copyright 2016 Google Inc.
  * https://developers.google.com/blockly/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * You may not use this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *   http://www.apache.org/licenses/LICENSE-2.0
@@ -30,16 +30,16 @@
 goog.provide('BlockOption');
 goog.require('goog.dom');
 
+
  /**
  * BlockOption Class
  * A block option includes checkbox, label, and div element that shows a preview
  * of the block.
- * @constructor
- *
- * @param {!Element} blockSelector - Scrollable div that will contain the
+ * @param {!Element} blockSelector Scrollable div that will contain the
  *    block options for the selector.
- * @param {!string} blockType - Type of block for which to create an option.
- * @param {!Element} previewBlockXml - Xml element containing the preview block.
+ * @param {string} blockType Type of block for which to create an option.
+ * @param {!Element} previewBlockXml XML element containing the preview block.
+ * @constructor
  */
 var BlockOption = function(blockSelector, blockType, previewBlockXml) {
   // The div to contain the block option.
@@ -65,7 +65,6 @@ var BlockOption = function(blockSelector, blockType, previewBlockXml) {
 /**
  * Creates the dom for a single block option. Includes checkbox, label, and div
  * in which to inject the preview block.
- *
  * @return {!Element} Root node of the selector dom which consists of a
  * checkbox, a label, and a fixed size preview workspace per block.
  */
@@ -82,38 +81,38 @@ BlockOption.prototype.createDom = function() {
     'id' : this.blockType + '_workspace',
     'class': 'blockOption_preview'
   }, '');
-  goog.dom.appendChild(blockOptContainer,blockOptionPreview);
+  blockOptContainer.appendChild(blockOptionPreview);
 
   // Create and append container to hold checkbox and label.
   var checkLabelContainer = goog.dom.createDom('div', {
     'class': 'blockOption_checkLabel'
   }, '');
-  goog.dom.appendChild(blockOptContainer,checkLabelContainer);
+  blockOptContainer.appendChild(checkLabelContainer);
 
   // Create and append container for checkbox.
   var checkContainer = goog.dom.createDom('div', {
     'class': 'blockOption_check'
   }, '');
-  goog.dom.appendChild(checkLabelContainer, checkContainer);
+  checkLabelContainer.appendChild(checkContainer);
 
   // Create and append checkbox.
   this.checkbox = goog.dom.createDom('input', {
     'type': 'checkbox',
     'id': this.blockType + '_check'
   }, '');
-  goog.dom.appendChild(checkContainer, this.checkbox);
+  checkContainer.appendChild(this.checkbox);
 
   // Create and append container for block label.
   var labelContainer = goog.dom.createDom('div', {
     'class': 'blockOption_label'
   }, '');
-  goog.dom.appendChild(checkLabelContainer, labelContainer);
+  checkLabelContainer.appendChild(labelContainer);
 
   // Create and append text node for the label.
   var labelText = goog.dom.createDom('p', {
     'id': this.blockType + '_text'
   }, this.blockType);
-  goog.dom.appendChild(labelContainer, labelText);
+  labelContainer.appendChild(labelText);
 
   this.dom = blockOptContainer;
   return this.dom;
@@ -157,8 +156,7 @@ BlockOption.prototype.centerBlock = function() {
 
 /**
  * Selects or deselects the block option.
- *
- * @param {!boolean} selected - True if selecting option, false if deselecting
+ * @param {!boolean} selected True if selecting option, false if deselecting
  *    option.
  */
 BlockOption.prototype.setSelected = function(selected) {
@@ -170,12 +168,9 @@ BlockOption.prototype.setSelected = function(selected) {
 
 /**
  * Returns boolean telling whether or not block is selected.
- *
  * @return {!boolean} True if selecting option, false if deselecting
  *    option.
  */
 BlockOption.prototype.isSelected = function() {
   return this.selected;
 };
-
-
