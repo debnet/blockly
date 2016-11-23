@@ -27,6 +27,7 @@
 goog.provide('Blockly.Toolbox');
 
 goog.require('Blockly.Flyout');
+goog.require('Blockly.Touch');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.events');
@@ -147,14 +148,17 @@ Blockly.Toolbox.prototype.init = function() {
   var workspace = this.workspace_;
   var svg = this.workspace_.getParentSvg();
 
-  // Create an HTML container for the Toolbox menu.
+  /**
+   * HTML container for the Toolbox menu.
+   * @type {Element}
+   */
   this.HtmlDiv =
       goog.dom.createDom(goog.dom.TagName.DIV, 'blocklyToolboxDiv');
   this.HtmlDiv.setAttribute('dir', workspace.RTL ? 'RTL' : 'LTR');
   svg.parentNode.insertBefore(this.HtmlDiv, svg);
 
   // Clicking on toolbox closes popups.
-  Blockly.bindEvent_(this.HtmlDiv, 'mousedown', this,
+  Blockly.bindEventWithChecks_(this.HtmlDiv, 'mousedown', this,
       function(e) {
         if (Blockly.isRightButton(e) || e.target == this.HtmlDiv) {
           // Close flyout.
@@ -163,11 +167,13 @@ Blockly.Toolbox.prototype.init = function() {
           // Just close popups.
           Blockly.hideChaff(true);
         }
+        Blockly.Touch.clearTouchIdentifier();  // Don't block future drags.
       });
   var workspaceOptions = {
     disabledPatternId: workspace.options.disabledPatternId,
     parentWorkspace: workspace,
     RTL: workspace.RTL,
+    oneBasedIndex: workspace.options.oneBasedIndex,
     horizontalLayout: workspace.horizontalLayout,
     toolboxPosition: workspace.options.toolboxPosition
   };
@@ -356,6 +362,8 @@ Blockly.Toolbox.prototype.syncTrees_ = function(treeIn, treeOut, pathToMedia) {
         break;
       case 'BLOCK':
       case 'SHADOW':
+      case 'LABEL':
+      case 'BUTTON':
         treeOut.blocks.push(childIn);
         lastElement = childIn;
         break;
@@ -468,10 +476,10 @@ goog.inherits(Blockly.Toolbox.TreeControl, goog.ui.tree.TreeControl);
 Blockly.Toolbox.TreeControl.prototype.enterDocument = function() {
   Blockly.Toolbox.TreeControl.superClass_.enterDocument.call(this);
 
+  var el = this.getElement();
   // Add touch handler.
   if (goog.events.BrowserFeature.TOUCH_ENABLED) {
-    var el = this.getElement();
-    Blockly.bindEvent_(el, goog.events.EventType.TOUCHSTART, this,
+    Blockly.bindEventWithChecks_(el, goog.events.EventType.TOUCHSTART, this,
         this.handleTouchEvent_);
   }
 };
@@ -562,7 +570,6 @@ Blockly.Toolbox.TreeControl.prototype.setSelectedItem = function(node) {
 Blockly.Toolbox.TreeNode = function(toolbox, html, opt_config, opt_domHelper) {
   goog.ui.tree.TreeNode.call(this, html, opt_config, opt_domHelper);
   if (toolbox) {
-    this.horizontalLayout_ = toolbox.horizontalLayout_;
     var resize = function() {
       // Even though the div hasn't changed size, the visible workspace
       // surface of the workspace has, so we may need to reposition everything.
@@ -623,10 +630,12 @@ Blockly.Toolbox.TreeNode.prototype.onDoubleClick_ = function(e) {
  * @private
  */
 Blockly.Toolbox.TreeNode.prototype.onKeyDown = function(e) {
-  if (this.horizontalLayout_) {
+  if (this.tree.toolbox_.horizontalLayout_) {
     var map = {};
-    map[goog.events.KeyCodes.RIGHT] = goog.events.KeyCodes.DOWN;
-    map[goog.events.KeyCodes.LEFT] = goog.events.KeyCodes.UP;
+    var next = goog.events.KeyCodes.DOWN
+    var prev = goog.events.KeyCodes.UP
+    map[goog.events.KeyCodes.RIGHT] = this.rightToLeft_ ? prev : next;
+    map[goog.events.KeyCodes.LEFT] = this.rightToLeft_ ? next : prev;
     map[goog.events.KeyCodes.UP] = goog.events.KeyCodes.LEFT;
     map[goog.events.KeyCodes.DOWN] = goog.events.KeyCodes.RIGHT;
 

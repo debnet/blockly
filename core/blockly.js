@@ -24,7 +24,10 @@
  */
 'use strict';
 
-// Top level object for Blockly.
+/**
+ * The top level namespace used to access the Blockly library.
+ * @namespace Blockly
+ */
 goog.provide('Blockly');
 
 goog.require('Blockly.BlockSvg.render');
@@ -45,6 +48,7 @@ goog.require('Blockly.Generator');
 goog.require('Blockly.Msg');
 goog.require('Blockly.Procedures');
 goog.require('Blockly.Toolbox');
+goog.require('Blockly.Touch');
 goog.require('Blockly.WidgetDiv');
 goog.require('Blockly.WorkspaceSvg');
 goog.require('Blockly.constants');
@@ -115,11 +119,26 @@ Blockly.clipboardSource_ = null;
 Blockly.dragMode_ = Blockly.DRAG_NONE;
 
 /**
- * Wrapper function called when a touch mouseUp occurs during a drag operation.
- * @type {Array.<!Array>}
- * @private
+ * Map from function names to callbacks, for deciding what to do when a button
+ * is clicked.
+ * @type {!Object<string, function(!Blockly.FlyoutButton)>}
  */
-Blockly.onTouchUpWrapper_ = null;
+Blockly.flyoutButtonCallbacks_ = {};
+
+/**
+ * Register a callback function associated with a given key, for clicks on
+ * buttons and labels in the flyout.
+ * For instance, a button specified by the XML
+ * <button text="create variable" callbackKey="CREATE_VARIABLE"></button>
+ * should be matched by a call to
+ * registerButtonCallback("CREATE_VARIABLE", yourCallbackFunction).
+ * @param {string} key The name to use to look up this function.
+ * @param {function(!Blockly.FlyoutButton)} func The function to call when the
+ *     given button is clicked.
+ */
+Blockly.registerButtonCallback = function(key, func) {
+  Blockly.flyoutButtonCallbacks_[key] = func;
+};
 
 /**
  * Convert a hue (HSV model) into an RGB hex triplet.
@@ -180,62 +199,6 @@ Blockly.svgResize = function(workspace) {
     svg.cachedHeight_ = height;
   }
   mainWorkspace.resize();
-};
-
-/**
- * Handle a mouse-up anywhere on the page.
- * @param {!Event} e Mouse up event.
- * @private
- */
-Blockly.onMouseUp_ = function(e) {
-  var workspace = Blockly.getMainWorkspace();
-  Blockly.Css.setCursor(Blockly.Css.Cursor.OPEN);
-  workspace.dragMode_ = Blockly.DRAG_NONE;
-  // Unbind the touch event if it exists.
-  if (Blockly.onTouchUpWrapper_) {
-    Blockly.unbindEvent_(Blockly.onTouchUpWrapper_);
-    Blockly.onTouchUpWrapper_ = null;
-  }
-  if (Blockly.onMouseMoveWrapper_) {
-    Blockly.unbindEvent_(Blockly.onMouseMoveWrapper_);
-    Blockly.onMouseMoveWrapper_ = null;
-  }
-};
-
-/**
- * Handle a mouse-move on SVG drawing surface.
- * @param {!Event} e Mouse move event.
- * @private
- */
-Blockly.onMouseMove_ = function(e) {
-  if (e.touches && e.touches.length >= 2) {
-    return;  // Multi-touch gestures won't have e.clientX.
-  }
-  var workspace = Blockly.getMainWorkspace();
-  if (workspace.dragMode_ != Blockly.DRAG_NONE) {
-    var dx = e.clientX - workspace.startDragMouseX;
-    var dy = e.clientY - workspace.startDragMouseY;
-    var metrics = workspace.startDragMetrics;
-    var x = workspace.startScrollX + dx;
-    var y = workspace.startScrollY + dy;
-    x = Math.min(x, -metrics.contentLeft);
-    y = Math.min(y, -metrics.contentTop);
-    x = Math.max(x, metrics.viewWidth - metrics.contentLeft -
-                 metrics.contentWidth);
-    y = Math.max(y, metrics.viewHeight - metrics.contentTop -
-                 metrics.contentHeight);
-
-    // Move the scrollbars and the page will scroll automatically.
-    workspace.scrollbar.set(-x - metrics.contentLeft,
-                            -y - metrics.contentTop);
-    // Cancel the long-press if the drag has moved too far.
-    if (Math.sqrt(dx * dx + dy * dy) > Blockly.DRAG_RADIUS) {
-      Blockly.longStop_();
-      workspace.dragMode_ = Blockly.DRAG_FREE;
-    }
-    e.stopPropagation();
-    e.preventDefault();
-  }
 };
 
 /**
@@ -309,43 +272,6 @@ Blockly.onKeyDown_ = function(e) {
 Blockly.terminateDrag_ = function() {
   Blockly.BlockSvg.terminateDrag();
   Blockly.Flyout.terminateDrag_();
-};
-
-/**
- * PID of queued long-press task.
- * @private
- */
-Blockly.longPid_ = 0;
-
-/**
- * Context menus on touch devices are activated using a long-press.
- * Unfortunately the contextmenu touch event is currently (2015) only suported
- * by Chrome.  This function is fired on any touchstart event, queues a task,
- * which after about a second opens the context menu.  The tasks is killed
- * if the touch event terminates early.
- * @param {!Event} e Touch start event.
- * @param {!Blockly.Block|!Blockly.WorkspaceSvg} uiObject The block or workspace
- *   under the touchstart event.
- * @private
- */
-Blockly.longStart_ = function(e, uiObject) {
-  Blockly.longStop_();
-  Blockly.longPid_ = setTimeout(function() {
-    e.button = 2;  // Simulate a right button click.
-    uiObject.onMouseDown_(e);
-  }, Blockly.LONGPRESS);
-};
-
-/**
- * Nope, that's not a long-press.  Either touchend or touchcancel was fired,
- * or a drag hath begun.  Kill the queued long-press task.
- * @private
- */
-Blockly.longStop_ = function() {
-  if (Blockly.longPid_) {
-    clearTimeout(Blockly.longPid_);
-    Blockly.longPid_ = 0;
-  }
 };
 
 /**
@@ -436,6 +362,69 @@ Blockly.addChangeListener = function(func) {
  */
 Blockly.getMainWorkspace = function() {
   return Blockly.mainWorkspace;
+};
+
+/**
+ * Wrapper to window.alert() that app developers may override to
+ * provide alternatives to the modal browser window.
+ * @param {string} message The message to display to the user.
+ * @param {function()=} opt_callback The callback when the alert is dismissed.
+ */
+Blockly.alert = function(message, opt_callback) {
+  window.alert(message);
+  if (opt_callback) {
+    opt_callback();
+  }
+};
+
+/**
+ * Wrapper to window.confirm() that app developers may override to
+ * provide alternatives to the modal browser window.
+ * @param {string} message The message to display to the user.
+ * @param {!function(boolean)} callback The callback for handling user response.
+ */
+Blockly.confirm = function(message, callback) {
+  callback(window.confirm(message));
+};
+
+/**
+ * Wrapper to window.prompt() that app developers may override to provide
+ * alternatives to the modal browser window. Built-in browser prompts are
+ * often used for better text input experience on mobile device. We strongly
+ * recommend testing mobile when overriding this.
+ * @param {string} message The message to display to the user.
+ * @param {string} defaultValue The value to initialize the prompt with.
+ * @param {!function(string)} callback The callback for handling user reponse.
+ */
+Blockly.prompt = function(message, defaultValue, callback) {
+  callback(window.prompt(message, defaultValue));
+};
+
+/**
+ * Helper function for defining a block from JSON.  The resulting function has
+ * the correct value of jsonDef at the point in code where jsonInit is called.
+ * @param {!Object} jsonDef The JSON definition of a block.
+ * @return {function} A function that calls jsonInit with the correct value
+ *     of jsonDef.
+ * @private
+ */
+Blockly.jsonInitFactory_ = function(jsonDef) {
+  return function() {
+    this.jsonInit(jsonDef);
+  };
+};
+
+/**
+ * Define blocks from an array of JSON block definitions, as might be generated
+ * by the Blockly Developer Tools.
+ * @param {!Array.<!Object>} jsonArray An array of JSON block definitions.
+ */
+Blockly.defineBlocksWithJsonArray = function(jsonArray) {
+  for (var i = 0, elem; elem = jsonArray[i]; i++) {
+    Blockly.Blocks[elem.type] = {
+      init: Blockly.jsonInitFactory_(elem)
+    };
+  }
 };
 
 // IE9 does not have a console.  Create a stub to stop errors.

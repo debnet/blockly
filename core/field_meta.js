@@ -202,12 +202,6 @@ Blockly.FieldMeta.prototype.addFieldset_ = function (label, field, readOnly) {
  * @private
  */
 Blockly.FieldMeta.prototype.createEditor_ = function () {
-    /* Create the editor.  Here's the markup that will be generated:
-      <foreignObject x="8" y="8" width="164" height="164">
-        <body xmlns="http://www.w3.org/1999/xhtml" class="blocklyMinimalBody">
-        </body>
-      </foreignObject>
-    */
 
     var dragHandle = goog.dom.createDom('div', 'blocklyDragHandle');
     //goog.events.listen(dragHandle, goog.events.EventType.DRAG, function (event) {
@@ -305,8 +299,8 @@ Blockly.FieldMeta.prototype.showEditor_ = function () {
     Blockly.WidgetDiv.position(svgPosition.x, svgPosition.y, svgSize, scrollOffset,
         this.sourceBlock_.RTL);
 
-    div.style.height = svgSize.height;
-    div.style.width = svgSize.width;
+    div.style.height = svgSize.height + "px";
+    div.style.width = svgSize.width + "px";
     div.style.backgroundColor = 'rgba(205, 205, 205, 0.5)';
     Blockly.WidgetDiv.DIV.style.backgroundColor = 'rgba(0, 0, 0, 0)';
 
@@ -395,11 +389,11 @@ Blockly.FieldMeta.CSS = [
     '   border-radius : 10px;',
     '}',
 
-    '.blocklyWidgetDiv .blocklyMetaModal .BlocklyButton{',
+    '.blocklyWidgetDiv .blocklyMetaModal .blocklyButton{',
     '   float : right;',
     '}',
 
-    '.blocklyWidgetDiv .blocklyMetaModal .BlocklyCloseModal{',
+    '.blocklyWidgetDiv .blocklyMetaModal .blocklyCloseModal{',
     '   float : right;',
     '}',
 ];
