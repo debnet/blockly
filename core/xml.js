@@ -135,9 +135,10 @@ Blockly.Xml.blockToDom = function(block, opt_noId) {
       }
     }
     container.setAttribute('name', input.name);
-    if (!empty) {
+    container.setAttribute('visible', input.visible_);
+    //if (!empty) {
       element.appendChild(container);
-    }
+    //}
   }
   if (block.inputsInlineDefault != block.inputsInline) {
     element.setAttribute('inline', block.inputsInline);
@@ -494,6 +495,8 @@ Blockly.Xml.domToBlockHeadless_ = function(xmlBlock, workspace) {
                 'Child block does not have output or previous statement.');
           }
         }
+        if(xmlChild.getAttribute('visible') === "false")
+          input.setVisible(false);
         break;
       case 'next':
         if (childShadowNode && block.nextConnection) {

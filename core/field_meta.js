@@ -10,6 +10,12 @@ goog.require('goog.style');
 
 
 Blockly.FieldMeta = function (metas, opt, validator) {
+    opt.addMeta = opt.addMeta !== undefined ? opt.addMeta : true;
+    //required fields should at least exist to prevent undefined values
+    for(var i=0; i < opt.required.length; ++i){
+        if(!metas.hasOwnProperty(opt.required[i]))
+            metas[opt.required[i]] = null;
+    }
     this.options = opt;
     Blockly.FieldMeta.superClass_.constructor.call(this, metas, validator);
     this.size_ = new goog.math.Size(0, 0);
@@ -43,7 +49,7 @@ Blockly.FieldMeta.prototype.drawIcon_ = function () {
     // Square with rounded corners.
     Blockly.createSvgElement('rect',
         {
-            'class': 'blocklyFieldMetaShape',
+            'class': 'blocklyIconShape',
             'rx': '4', 'ry': '4',
             'height': this.ICON_SIZE_, 'width': this.ICON_SIZE_
         },
@@ -191,8 +197,12 @@ Blockly.FieldMeta.prototype.addFieldset_ = function (label, field, readOnly) {
                 thisField.setModalMetrics_();
                 //delete thisField.metas_[label.value];
             });
-    } else {//We can't change the label of a required field
-        goog.dom.setProperties(labelField, {readOnly: label, tabIndex: '-1'});
+    }
+    if(readOnly){//We can't change the label of a required field
+        goog.dom.setProperties(labelField, {readOnly: true, tabIndex: '-1'});
+    }
+    if(this.options.readOnly){
+        goog.dom.setProperties(value, {readOnly: true, tabIndex: '-1'});
     }
     this.form.appendChild(fieldSet);
 };
@@ -204,12 +214,14 @@ Blockly.FieldMeta.prototype.addFieldset_ = function (label, field, readOnly) {
 Blockly.FieldMeta.prototype.createEditor_ = function () {
 
     var dragHandle = goog.dom.createDom('div', 'blocklyDragHandle');
+    this.modalDiv.appendChild(dragHandle);
     //goog.events.listen(dragHandle, goog.events.EventType.DRAG, function (event) {
     //    event;
     //});
 
     var title = goog.dom.createDom('span', 'blocklyText');
     goog.dom.setProperties(title, {textContent: "Modification de " + this.sourceBlock_.type});
+    dragHandle.appendChild(title);
 
     var close = goog.dom.createDom('a', 'blocklyCloseModal');
     goog.dom.setProperties(close, {textContent: "×"});
@@ -218,7 +230,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         function (event) {
             Blockly.FieldMeta.widgetDispose_();
         });
-
+    dragHandle.appendChild(close);
 
     this.form = goog.dom.createDom('form');
     goog.dom.setProperties(this.form, {name: 'metas'});
@@ -226,7 +238,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
     //show required fields first
     if (this.options.required) {
         for (var i = 0; i < this.options.required.length; ++i) {
-            this.addFieldset_(this.options.required[i], this.metas_[this.options.required[i]] || "default", true);
+            this.addFieldset_(this.options.required[i], this.metas_[this.options.required[i]] || "", true);
         }
     }
 
@@ -237,22 +249,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
             continue;
         this.addFieldset_(key, this.metas_[key]);
     }
-
-    var thisField = this;
-    if (!this.options.addMeta) {
-        var plus = goog.dom.createDom('button', 'blocklyButton');
-        goog.dom.setTextContent(plus, '+');
-
-        goog.events.listen(plus,
-            goog.events.EventType.CLICK,
-            function (event) {
-                thisField.addFieldset_('default', 'default');
-                thisField.setModalMetrics_();
-            });
-    }
-
-    var confirm = goog.dom.createDom('button', {class: 'blocklyButton', type: 'submit'});
-    goog.dom.setTextContent(confirm, 'Valider');
+    this.modalDiv.appendChild(this.form);
 
     function confirmation(event) {
         if (event.type === goog.events.EventType.KEYDOWN && event.keyCode !== 13)
@@ -267,16 +264,28 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         Blockly.FieldMeta.widgetDispose_();
     }
 
-    goog.events.listen(confirm, goog.events.EventType.CLICK, confirmation);
-    goog.events.listen(this.modalDiv, goog.events.EventType.KEYDOWN, confirmation);
+    if (!this.options.readOnly) {
+        var thisField = this;
+        if (this.options.addMeta) {
+            var plus = goog.dom.createDom('button', 'blocklyButton');
+            goog.dom.setTextContent(plus, '+');
 
-    this.modalDiv.appendChild(dragHandle);
-    dragHandle.appendChild(title);
-    dragHandle.appendChild(close);
-    this.modalDiv.appendChild(this.form);
+            goog.events.listen(plus,
+                goog.events.EventType.CLICK,
+                function (event) {
+                    thisField.addFieldset_('default', 'default');
+                    thisField.setModalMetrics_();
+                });
+            this.modalDiv.appendChild(plus);
+        }
 
-    this.modalDiv.appendChild(plus);
-    this.modalDiv.appendChild(confirm);
+        var confirm = goog.dom.createDom('button', {class: 'blocklyButton', type: 'submit'});
+        goog.dom.setTextContent(confirm, 'Valider');
+
+        goog.events.listen(confirm, goog.events.EventType.CLICK, confirmation);
+        goog.events.listen(this.modalDiv, goog.events.EventType.KEYDOWN, confirmation);
+        this.modalDiv.appendChild(confirm);
+    }
 };
 
 /**
@@ -356,22 +365,22 @@ Blockly.FieldMeta.widgetDispose_ = function () {
  */
 Blockly.FieldMeta.CSS = [
     /* Copied from: goog/css/datepicker.css */
-/**
- * Copyright 2009 The Closure Library Authors. All Rights Reserved.
- *
- * Use of this source code is governed by the Apache License, Version 2.0.
- * See the COPYING file for details.
- */
+    /**
+     * Copyright 2009 The Closure Library Authors. All Rights Reserved.
+     *
+     * Use of this source code is governed by the Apache License, Version 2.0.
+     * See the COPYING file for details.
+     */
 
-    '.blocklyEditableField .blocklyFieldMetaShape {',
-    '    fill: #fff;',
-    '    fill-opacity: 0.1;',
-    '    stroke: #fff;',
-    '}',
-
-    '.blocklyEditableField .blocklyFieldMetaSymbol {',
-    '    fill: #fff;',
-    '}',
+    // '.blocklyEditableField .blocklyFieldMetaShape {',
+    // '    fill: #fff;',
+    // '    fill-opacity: 0.1;',
+    // '    stroke: #fff;',
+    // '}',
+    //
+    // '.blocklyEditableField .blocklyFieldMetaSymbol {',
+    // '    fill: #fff;',
+    // '}',
 
     '.blocklyWidgetDiv {',
     '  background: #9ab;',
