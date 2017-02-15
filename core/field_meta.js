@@ -238,7 +238,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
     //show required fields first
     if (this.options.required) {
         for (var i = 0; i < this.options.required.length; ++i) {
-            this.addFieldset_(this.options.required[i], this.metas_[this.options.required[i]] || "", true);
+            this.addFieldset_(this.options.required[i], this.metas_[this.options.required[i]] /*|| ""*/, true);
         }
     }
 
