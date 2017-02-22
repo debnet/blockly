@@ -47,7 +47,7 @@ Blockly.FieldMeta.prototype.iconXY_ = null;
  */
 Blockly.FieldMeta.prototype.drawIcon_ = function () {
     // Square with rounded corners.
-    Blockly.createSvgElement('rect',
+    Blockly.utils.createSvgElement('rect',
         {
             'class': 'blocklyIconShape',
             'rx': '4', 'ry': '4',
@@ -55,7 +55,7 @@ Blockly.FieldMeta.prototype.drawIcon_ = function () {
         },
         this.fieldGroup_);
     // Gear teeth.
-    Blockly.createSvgElement('path',
+    Blockly.utils.createSvgElement('path',
         {
             'x': '4', 'y': '4',
             'class': 'blocklyIconSymbol',
@@ -67,7 +67,6 @@ Blockly.FieldMeta.prototype.drawIcon_ = function () {
 Blockly.FieldMeta.prototype.showLabel_ = function () {
     if (this.options.label) {
         this.setText(this.metas_[this.options.label]);
-        this.updateTextNode_();
     }
 };
 
@@ -100,13 +99,13 @@ Blockly.FieldMeta.prototype.init = function () {
         // Metas has already been initialized once.
         return;
     }
-    this.fieldGroup_ = Blockly.createSvgElement('g', {
+    this.fieldGroup_ = Blockly.utils.createSvgElement('g', {
         'class': 'blocklyEditableField',
     }, null);
     if (!this.visible_) {
         this.fieldGroup_.style.display = 'none';
     }
-    this.textElement_ = Blockly.createSvgElement('text',
+    this.textElement_ = Blockly.utils.createSvgElement('text',
         {
             'x': '20', 'y': this.ICON_SIZE_ - 3.5,
             'class': 'blocklyText'
@@ -114,32 +113,11 @@ Blockly.FieldMeta.prototype.init = function () {
         this.fieldGroup_);
 
     this.drawIcon_();
-    this.updateTextNode_();
     this.updateEditable();
     this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
     this.mouseUpWrapper_ =
         Blockly.bindEvent_(this.fieldGroup_, 'mouseup', this, this.onMouseUp_);
 };
-
-Blockly.FieldMeta.prototype.updateEditable = function () {
-    if (!this.EDITABLE || !this.sourceBlock_) {
-        return;
-    }
-    if (this.sourceBlock_.isEditable()) {
-        Blockly.addClass_(/** @type {!Element} */ (this.fieldGroup_),
-            'blocklyEditableField');
-        Blockly.removeClass_(/** @type {!Element} */ (this.fieldGroup_),
-            'blocklyNoNEditableField');
-        this.fieldGroup_.style.cursor = this.CURSOR;
-    } else {
-        Blockly.addClass_(/** @type {!Element} */ (this.fieldGroup_),
-            'blocklyNonEditableField');
-        Blockly.removeClass_(/** @type {!Element} */ (this.fieldGroup_),
-            'blocklyEditableField');
-        this.fieldGroup_.style.cursor = '';
-    }
-};
-
 
 /**
  * Check to see if the contents of the editor validates.
@@ -371,16 +349,6 @@ Blockly.FieldMeta.CSS = [
      * Use of this source code is governed by the Apache License, Version 2.0.
      * See the COPYING file for details.
      */
-
-    // '.blocklyEditableField .blocklyFieldMetaShape {',
-    // '    fill: #fff;',
-    // '    fill-opacity: 0.1;',
-    // '    stroke: #fff;',
-    // '}',
-    //
-    // '.blocklyEditableField .blocklyFieldMetaSymbol {',
-    // '    fill: #fff;',
-    // '}',
 
     '.blocklyWidgetDiv {',
     '  background: #9ab;',
