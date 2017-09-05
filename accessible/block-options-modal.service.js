@@ -23,9 +23,15 @@
  * @author sll@google.com (Sean Lip)
  */
 
+goog.provide('blocklyApp.BlockOptionsModalService');
+
+
 blocklyApp.BlockOptionsModalService = ng.core.Class({
   constructor: [function() {
     this.actionButtonsInfo = [];
+    // The aim of the pre-show hook is to populate the modal component with the
+    // information it needs to display the modal (e.g., which action buttons to
+    // display).
     this.preShowHook = function() {
       throw Error(
           'A pre-show hook must be defined for the block options modal ' +
@@ -35,8 +41,9 @@ blocklyApp.BlockOptionsModalService = ng.core.Class({
     this.onDismissCallback = null;
   }],
   registerPreShowHook: function(preShowHook) {
+    var that = this;
     this.preShowHook = function() {
-      preShowHook(this.actionButtonsInfo, this.onDismissCallback);
+      preShowHook(that.actionButtonsInfo, that.onDismissCallback);
     };
   },
   isModalShown: function() {
