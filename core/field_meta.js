@@ -12,8 +12,8 @@ goog.require('goog.style');
 Blockly.FieldMeta = function (metas, opt, validator) {
     opt.addMeta = opt.addMeta !== undefined ? opt.addMeta : true;
     //required fields should at least exist to prevent undefined values
-    for(var i=0; i < opt.required.length; ++i){
-        if(!metas.hasOwnProperty(opt.required[i]))
+    for (var i = 0; i < opt.required.length; ++i) {
+        if (!metas.hasOwnProperty(opt.required[i]))
             metas[opt.required[i]] = null;
     }
     this.options = opt;
@@ -115,8 +115,9 @@ Blockly.FieldMeta.prototype.init = function () {
     this.drawIcon_();
     this.updateEditable();
     this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
-    this.mouseUpWrapper_ =
-        Blockly.bindEvent_(this.fieldGroup_, 'mouseup', this, this.onMouseUp_);
+    this.mouseDownWrapper_ =
+        Blockly.bindEventWithChecks_(this.fieldGroup_, 'mousedown', this,
+            this.onMouseDown_);
 };
 
 /**
@@ -176,10 +177,10 @@ Blockly.FieldMeta.prototype.addFieldset_ = function (label, field, readOnly) {
                 //delete thisField.metas_[label.value];
             });
     }
-    if(readOnly){//We can't change the label of a required field
+    if (readOnly) {//We can't change the label of a required field
         goog.dom.setProperties(labelField, {readOnly: true, tabIndex: '-1'});
     }
-    if(this.options.readOnly){
+    if (this.options.readOnly) {
         goog.dom.setProperties(value, {readOnly: true, tabIndex: '-1'});
     }
     this.form.appendChild(fieldSet);
