@@ -305,6 +305,8 @@ Blockly.init_ = function(mainWorkspace) {
   if (options.hasSounds) {
     Blockly.inject.loadSounds_(options.pathToMedia, mainWorkspace);
   }
+
+  mainWorkspace.searchInput_.init(mainWorkspace);
 };
 
 /**

@@ -401,6 +401,7 @@ Blockly.WorkspaceSvg.prototype.createDom = function(opt_backgroundClass) {
      */
     this.toolbox_ = new Blockly.Toolbox(this);
   }
+  this.searchInput_ = new Blockly.Search(this);
   if (this.grid_) {
     this.grid_.update(this.scale);
   }
@@ -440,6 +441,10 @@ Blockly.WorkspaceSvg.prototype.dispose = function() {
   if (this.scrollbar) {
     this.scrollbar.dispose();
     this.scrollbar = null;
+  }
+  if (this.searchInput_) {
+    this.searchInput_.dispose();
+    this.searchInput_ = null;
   }
   if (this.zoomControls_) {
     this.zoomControls_.dispose();
@@ -615,6 +620,9 @@ Blockly.WorkspaceSvg.prototype.resize = function() {
   if (this.scrollbar) {
     this.scrollbar.resize();
   }
+  if (this.searchInput_) {
+    this.searchInput_.position();
+  }
   this.updateScreenCalculations_();
 };
 
@@ -779,10 +787,16 @@ Blockly.WorkspaceSvg.prototype.setVisible = function(isVisible) {
     // Currently does not support toolboxes in mutators.
     this.toolbox_.HtmlDiv.style.display = isVisible ? 'block' : 'none';
   }
+  if (this.searchInput_) {
+    this.searchInput_.HtmlDiv.style.display = isVisible ? 'block' : 'none';
+  }
   if (isVisible) {
     this.render();
     if (this.toolbox_) {
       this.toolbox_.position();
+    }
+    if (this.searchInput_) {
+      this.searchInput_.position();
     }
   } else {
     Blockly.hideChaff(true);
@@ -1475,6 +1489,21 @@ Blockly.WorkspaceSvg.prototype.scrollCenter = function() {
   }
   var y = (metrics.contentHeight - metrics.viewHeight) / 2;
   this.scrollbar.set(x, y);
+};
+
+/**
+ * Function to center the view on a block and select it.
+ * @param {Blockly.Block} block Block to center on.
+ */
+Blockly.WorkspaceSvg.prototype.centerViewOnBlock = function (block) {
+  var blockCoordinates = block.getRelativeToSurfaceXY();
+  var workspaceMetrics = this.getMetrics();
+
+  var x = blockCoordinates.x * this.scale - workspaceMetrics.contentLeft - workspaceMetrics.viewWidth / 2;
+  var y = blockCoordinates.y * this.scale - workspaceMetrics.contentTop - workspaceMetrics.viewHeight / 2;
+
+  this.scrollbar.set(x, y);
+  this.resizeContents();
 };
 
 /**

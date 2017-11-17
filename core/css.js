@@ -87,6 +87,9 @@ Blockly.Css.inject = function(hasCss, pathToMedia) {
     if (Blockly.FieldMeta) {
       text += Blockly.FieldMeta.CSS.join('\n');
     }
+    if (Blockly.Search) {
+      text += Blockly.Search.CSS.join('\n');
+    }
   }
   // Strip off any trailing slash (either Unix or Windows).
   Blockly.Css.mediaPath_ = pathToMedia.replace(/[\\\/]$/, '');

@@ -169,15 +169,19 @@ Blockly.FieldMeta.prototype.addFieldset_ = function (label, field, readOnly) {
         goog.dom.setTextContent(minus, '-');
         fieldSet.appendChild(minus);
         var thisField = this;
-        goog.events.listen(minus,
-            goog.events.EventType.CLICK,
-            function (event) {
-                goog.dom.removeNode(fieldSet);
-                thisField.setModalMetrics_();
-                //delete thisField.metas_[label.value];
-            });
-    }
-    if (readOnly) {//We can't change the label of a required field
+        var index = Blockly.FieldMeta.deleteMetaClick_.length;
+        Blockly.FieldMeta.deleteMetaClick_.push(
+            goog.events.listen(minus,
+                goog.events.EventType.CLICK,
+                    function (event) {
+                      goog.dom.removeNode(fieldSet);
+                      thisField.setModalMetrics_();
+                      Blockly.FieldMeta.deleteMetaClick_.splice(index, 1);
+                      //delete thisField.metas_[label.value];
+                    }
+            )
+        );
+    } else {//We can't change the label of a required field
         goog.dom.setProperties(labelField, {readOnly: true, tabIndex: '-1'});
     }
     if (this.options.readOnly) {
@@ -204,7 +208,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
 
     var close = goog.dom.createDom('a', 'blocklyCloseModal');
     goog.dom.setProperties(close, {textContent: "×"});
-    goog.events.listen(close,
+    Blockly.FieldMeta.closeWidgetClick_ = goog.events.listen(close,
         goog.events.EventType.CLICK,
         function (event) {
             Blockly.FieldMeta.widgetDispose_();
@@ -233,6 +237,9 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
     function confirmation(event) {
         if (event.type === goog.events.EventType.KEYDOWN && event.keyCode !== 13)
             return;
+        event.stopPropagation();
+        event.preventDefault();
+
         var metas = {};
         var fields = thisField.form.getElementsByTagName('fieldset');
         for (var i = 0; i < fields.length; ++i) {
@@ -245,11 +252,12 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
 
     if (!this.options.readOnly) {
         var thisField = this;
+        Blockly.FieldMeta.deleteMetaClick_ = [];
         if (this.options.addMeta) {
             var plus = goog.dom.createDom('button', 'blocklyButton');
             goog.dom.setTextContent(plus, '+');
 
-            goog.events.listen(plus,
+            Blockly.FieldMeta.addFieldClick_  = goog.events.listen(plus,
                 goog.events.EventType.CLICK,
                 function (event) {
                     thisField.addFieldset_('default', 'default');
@@ -261,8 +269,8 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         var confirm = goog.dom.createDom('button', {class: 'blocklyButton', type: 'submit'});
         goog.dom.setTextContent(confirm, 'Valider');
 
-        goog.events.listen(confirm, goog.events.EventType.CLICK, confirmation);
-        goog.events.listen(this.modalDiv, goog.events.EventType.KEYDOWN, confirmation);
+        Blockly.FieldMeta.confirmInputClick_ = goog.events.listen(confirm, goog.events.EventType.CLICK, confirmation);
+        Blockly.FieldMeta.confirmInputKeydown_ = goog.events.listen(this.modalDiv, goog.events.EventType.KEYDOWN, confirmation);
         this.modalDiv.appendChild(confirm);
     }
 };
@@ -324,6 +332,7 @@ Blockly.FieldMeta.prototype.dispose = function () {
     Blockly.FieldMeta.superClass_.dispose.call(this);
     this.modalDiv = null;
     this.form = null;
+
 };
 
 /**
@@ -331,8 +340,25 @@ Blockly.FieldMeta.prototype.dispose = function () {
  * @private
  */
 Blockly.FieldMeta.widgetDispose_ = function () {
+    if (Blockly.FieldMeta.confirmInputClick_) {
+        goog.events.unlistenByKey(Blockly.FieldMeta.confirmInputClick_);
+    }
+    if (Blockly.FieldMeta.addFieldClick_) {
+        goog.events.unlistenByKey(Blockly.FieldMeta.addFieldClick_);
+    }
+    if (Blockly.FieldMeta.confirmInputKeydown_) {
+        goog.events.unlistenByKey(Blockly.FieldMeta.confirmInputKeydown_);
+    }
     if (Blockly.FieldMeta.changeEventKey_) {
         goog.events.unlistenByKey(Blockly.FieldMeta.changeEventKey_);
+    }
+    if (Blockly.FieldMeta.closeWidgetClick_) {
+        goog.events.unlistenByKey(Blockly.FieldMeta.closeWidgetClick_);
+    }
+    if (Blockly.FieldMeta.deleteMetaClick_ && Blockly.FieldMeta.deleteMetaClick_.length) {
+        for(var i =0; i <Blockly.FieldMeta.deleteMetaClick_.length; ++i){
+            goog.events.unlistenByKey(Blockly.FieldMeta.deleteMetaClick_[i]);
+        }
     }
 
     Blockly.WidgetDiv.hide();
