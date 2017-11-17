@@ -247,15 +247,7 @@ Blockly.Variables.createVariable = function(workspace, opt_callback, opt_type) {
                 function() {
                   promptAndCheckWithAlert(text);  // Recurse
                 });
-          }
-          else if (Blockly.Procedures.isNameUsed(text, workspace)) {
-            Blockly.alert(Blockly.Msg.PROCEDURE_ALREADY_EXISTS.replace('%1',
-                text.toLowerCase()),
-                function() {
-                  promptAndCheckWithAlert(text);  // Recurse
-                });
-          }
-          else {
+          } else {
             workspace.createVariable(text, opt_type);
             if (opt_callback) {
               opt_callback(text);
@@ -296,15 +288,7 @@ Blockly.Variables.renameVariable = function(workspace, variable,
                 function() {
                   promptAndCheckWithAlert(newName);  // Recurse
                 });
-          }
-          else if (Blockly.Procedures.isNameUsed(newName, workspace)) {
-            Blockly.alert(Blockly.Msg.PROCEDURE_ALREADY_EXISTS.replace('%1',
-                newName.toLowerCase()),
-                function() {
-                  promptAndCheckWithAlert(newName);  // Recurse
-                });
-          }
-          else {
+          } else {
             workspace.renameVariable(variable.name, newName);
             if (opt_callback) {
               opt_callback(newName);
@@ -352,9 +336,14 @@ Blockly.Variables.promptName = function(promptText, defaultText, callback) {
  * @private
  */
 Blockly.Variables.generateVariableFieldXml_ = function(variableModel) {
-  var xmlString = '<field name="VAR" ' + 'variableType="' +
-      variableModel.type + '" id="' + variableModel.getId() + '">'+
-      variableModel.name +
-      '</field>';
+  // The variable name may be user input, so it may contain characters that need
+  // to be escaped to create valid XML.
+  var element = goog.dom.createDom('field');
+  element.setAttribute('name', 'VAR');
+  element.setAttribute('variableType', variableModel.type);
+  element.setAttribute('id', variableModel.getId());
+  element.textContent = variableModel.name;
+
+  var xmlString = Blockly.Xml.domToText(element);
   return xmlString;
 };
