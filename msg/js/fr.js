@@ -6,7 +6,6 @@ goog.provide('Blockly.Msg.fr');
 
 goog.require('Blockly.Msg');
 
-
 /** @export */ Blockly.Msg.ADD_COMMENT = "Ajouter un commentaire";
 /** @export */ Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "Impossible de supprimer la variable '%1' parce qu’elle fait partie de la définition de la fonction '%2'";
 /** @export */ Blockly.Msg.CHANGE_VALUE_TITLE = "Modifier la valeur :";
@@ -264,7 +263,7 @@ goog.require('Blockly.Msg');
 /** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_ABS = "Renvoie la valeur absolue d’un nombre.";
 /** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_EXP = "Renvoie e à la puissance d’un nombre.";
 /** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_LN = "Renvoie le logarithme naturel d’un nombre.";
-/** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_LOG10 = "Renvoie le logarithme base 10 d’un nombre.";
+/** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_LOG10 = "Renvoie le logarithme décimal d’un nombre.";
 /** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_NEG = "Renvoie l’opposé d’un nombre";
 /** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_POW10 = "Renvoie 10 à la puissance d’un nombre.";
 /** @export */ Blockly.Msg.MATH_SINGLE_TOOLTIP_ROOT = "Renvoie la racine carrée d’un nombre.";
@@ -283,7 +282,7 @@ goog.require('Blockly.Msg');
 /** @export */ Blockly.Msg.MATH_TRIG_TOOLTIP_SIN = "Renvoie le sinus d’un angle en degrés (pas en radians).";
 /** @export */ Blockly.Msg.MATH_TRIG_TOOLTIP_TAN = "Renvoie la tangente d’un angle en degrés (pas en radians).";
 /** @export */ Blockly.Msg.NEW_VARIABLE = "Créer une variable...";
-/** @export */ Blockly.Msg.NEW_VARIABLE_TITLE = "Nouveau nom de la variable :";
+/** @export */ Blockly.Msg.NEW_VARIABLE_TITLE = "Le nom de la nouvelle variable :";
 /** @export */ Blockly.Msg.ORDINAL_NUMBER_SUFFIX = "";  // untranslated
 /** @export */ Blockly.Msg.PROCEDURES_ALLOW_STATEMENTS = "autoriser les ordres";
 /** @export */ Blockly.Msg.PROCEDURES_BEFORE_PARAMS = "avec :";
@@ -311,7 +310,6 @@ goog.require('Blockly.Msg');
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORARG_TOOLTIP = "Ajouter une entrée à la fonction.";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE = "entrées";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TOOLTIP = "Ajouter, supprimer, ou réarranger les entrées de cette fonction.";
-/** @export */ Blockly.Msg.PROCEDURE_ALREADY_EXISTS = "Une procédure appelée '%1' existe déjà.";
 /** @export */ Blockly.Msg.REDO = "Refaire";
 /** @export */ Blockly.Msg.REMOVE_COMMENT = "Supprimer un commentaire";
 /** @export */ Blockly.Msg.RENAME_VARIABLE = "Renommer la variable…";

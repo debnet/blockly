@@ -6,7 +6,6 @@ goog.provide('Blockly.Msg.be.tarask');
 
 goog.require('Blockly.Msg');
 
-
 /** @export */ Blockly.Msg.ADD_COMMENT = "Дадаць камэнтар";
 /** @export */ Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "Немагчыма выдаліць зьменную «%1», таму што яна зьяўляецца часткай вызначэньня функцыі «%2»";
 /** @export */ Blockly.Msg.CHANGE_VALUE_TITLE = "Зьмяніць значэньне:";
@@ -311,7 +310,6 @@ goog.require('Blockly.Msg');
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORARG_TOOLTIP = "Дадаць уваходныя парамэтры ў функцыю.";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE = "парамэтры";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TOOLTIP = "Дадаць, выдаліць ці запісаць чаргу ўваходных парамэтраў для гэтай функцыі.";
-/** @export */ Blockly.Msg.PROCEDURE_ALREADY_EXISTS = "Працэдура з назвай «%1» ужо існуе.";
 /** @export */ Blockly.Msg.REDO = "Паўтарыць";
 /** @export */ Blockly.Msg.REMOVE_COMMENT = "Выдаліць камэнтар";
 /** @export */ Blockly.Msg.RENAME_VARIABLE = "Перайменаваць зьменную…";

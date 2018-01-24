@@ -6,7 +6,6 @@ goog.provide('Blockly.Msg.tr');
 
 goog.require('Blockly.Msg');
 
-
 /** @export */ Blockly.Msg.ADD_COMMENT = "Yorum Ekle";
 /** @export */ Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "'%1' değişkeni, '%2' fonksiyonunun tanımının bir parçası olduğu için silinemez";
 /** @export */ Blockly.Msg.CHANGE_VALUE_TITLE = "Değeri değiştir:";
@@ -311,7 +310,6 @@ goog.require('Blockly.Msg');
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORARG_TOOLTIP = "İşleve bir girdi ekleyin.";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE = "girdiler";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TOOLTIP = "Bu işlevin girdilerini ekleyin, çıkarın, ya da yeniden sıralayın.";
-/** @export */ Blockly.Msg.PROCEDURE_ALREADY_EXISTS = "'%1' isimli prosedür zaten var.";
 /** @export */ Blockly.Msg.REDO = "Yinele";
 /** @export */ Blockly.Msg.REMOVE_COMMENT = "Yorumu Sil";
 /** @export */ Blockly.Msg.RENAME_VARIABLE = "Değişkeni yeniden adlandır...";

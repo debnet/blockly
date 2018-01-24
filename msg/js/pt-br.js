@@ -6,7 +6,6 @@ goog.provide('Blockly.Msg.pt.br');
 
 goog.require('Blockly.Msg');
 
-
 /** @export */ Blockly.Msg.ADD_COMMENT = "Adicionar comentário";
 /** @export */ Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "Não se pode deletar a variável '%1' porque é parte da definição da função '%2'";
 /** @export */ Blockly.Msg.CHANGE_VALUE_TITLE = "Mudar valor:";
@@ -311,7 +310,6 @@ goog.require('Blockly.Msg');
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORARG_TOOLTIP = "Adiciona uma entrada para esta função";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE = "entradas";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TOOLTIP = "Adiciona, remove, ou reordena as entradas para esta função.";
-/** @export */ Blockly.Msg.PROCEDURE_ALREADY_EXISTS = "Um procedimento chamado '%1' já existe.";
 /** @export */ Blockly.Msg.REDO = "Refazer";
 /** @export */ Blockly.Msg.REMOVE_COMMENT = "Remover comentário";
 /** @export */ Blockly.Msg.RENAME_VARIABLE = "Renomear variável...";

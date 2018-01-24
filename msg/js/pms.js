@@ -6,7 +6,6 @@ goog.provide('Blockly.Msg.pms');
 
 goog.require('Blockly.Msg');
 
-
 /** @export */ Blockly.Msg.ADD_COMMENT = "Gionté un coment";
 /** @export */ Blockly.Msg.CANNOT_DELETE_VARIABLE_PROCEDURE = "As peul nen eliminesse la variàbil '%1' përchè a l'é part ëd la definission dla fonsion '%2'";
 /** @export */ Blockly.Msg.CHANGE_VALUE_TITLE = "Modifiché ël valor:";
@@ -311,7 +310,6 @@ goog.require('Blockly.Msg');
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORARG_TOOLTIP = "Gionté n'imission a la fonsion.";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TITLE = "imission";
 /** @export */ Blockly.Msg.PROCEDURES_MUTATORCONTAINER_TOOLTIP = "Gionté, gavé o riordiné j'imission ëd sa fonsion.";
-/** @export */ Blockly.Msg.PROCEDURE_ALREADY_EXISTS = "Na procedura ciamà '%1' a esist già.";
 /** @export */ Blockly.Msg.REDO = "Fé torna";
 /** @export */ Blockly.Msg.REMOVE_COMMENT = "Scancelé un coment";
 /** @export */ Blockly.Msg.RENAME_VARIABLE = "Arnomé la variàbil...";
