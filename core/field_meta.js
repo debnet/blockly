@@ -100,7 +100,7 @@ Blockly.FieldMeta.prototype.init = function () {
         return;
     }
     this.fieldGroup_ = Blockly.utils.createSvgElement('g', {
-        'class': 'blocklyEditableField',
+        'class': 'blocklyText',
     }, null);
     if (!this.visible_) {
         this.fieldGroup_.style.display = 'none';
@@ -114,6 +114,7 @@ Blockly.FieldMeta.prototype.init = function () {
 
     this.drawIcon_();
     this.updateEditable();
+    Blockly.utils.removeClass(this.fieldGroup_, 'blocklyEditableText');
     this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_);
     this.mouseDownWrapper_ =
         Blockly.bindEventWithChecks_(this.fieldGroup_, 'mousedown', this,
@@ -225,6 +226,7 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
         }
     }
 
+    Blockly.FieldMeta.deleteMetaClick_ = [];
     //show metadatas
     for (var key in this.metas_) {
         //We don't show required field again
@@ -252,7 +254,6 @@ Blockly.FieldMeta.prototype.createEditor_ = function () {
 
     if (!this.options.readOnly) {
         var thisField = this;
-        Blockly.FieldMeta.deleteMetaClick_ = [];
         if (this.options.addMeta) {
             var plus = goog.dom.createDom('button', 'blocklyButton');
             goog.dom.setTextContent(plus, '+');
@@ -356,7 +357,7 @@ Blockly.FieldMeta.widgetDispose_ = function () {
         goog.events.unlistenByKey(Blockly.FieldMeta.closeWidgetClick_);
     }
     if (Blockly.FieldMeta.deleteMetaClick_ && Blockly.FieldMeta.deleteMetaClick_.length) {
-        for(var i =0; i <Blockly.FieldMeta.deleteMetaClick_.length; ++i){
+        for(var i =0; i < Blockly.FieldMeta.deleteMetaClick_.length; ++i){
             goog.events.unlistenByKey(Blockly.FieldMeta.deleteMetaClick_[i]);
         }
     }
